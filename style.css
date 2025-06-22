@@ -84,3 +84,14 @@ footer {
 .social-links a:hover {
   text-decoration: underline;
 }
+
+article img {
+  display: block;
+  max-width: 100%;
+  margin: 1.5rem auto;
+  border-radius: 0.25rem;
+}
+
+.btn i {
+  margin-right: 0.4rem;
+}
