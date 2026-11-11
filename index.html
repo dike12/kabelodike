@@ -210,6 +210,32 @@
       text-decoration-color: var(--ink);
     }
 
+    .note-title a {
+      display: inline-block;
+      padding: 8px 0;
+      color: inherit;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-decoration-color: var(--rule);
+      text-underline-offset: 4px;
+      transition: text-decoration-color 150ms ease;
+    }
+
+    .note-title a:hover {
+      text-decoration-color: var(--ink);
+    }
+
+    .note-date {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-style: normal;
+      letter-spacing: 0.08em;
+      line-height: 1.6;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
     .draft {
       display: inline-block;
       padding: 2px var(--space-2);
@@ -268,6 +294,11 @@
         padding: var(--space-3) var(--space-2);
         margin: 0 calc(-1 * var(--space-2));
       }
+
+      .note-date {
+        width: 100%;
+        margin-left: 0;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -281,11 +312,11 @@
   <main>
     <header class="masthead">
       <h1>Kabelo Dike</h1>
-      <p class="tagline">Software and infrastructure.</p>
+      <p class="tagline">Software, infrastructure and random stuff.</p>
       <p class="intro">This is my public knowledge base and technical notebook of random side projects or curiosities.</p>
       <ul class="links" aria-label="Elsewhere">
         <li><a href="https://github.com/dike12" rel="me">GitHub</a></li>
-        <li><a href="/resume.pdf">Resume</a></li>
+        <li><a href="resume/">Resume</a></li>
         <li><a href="https://www.linkedin.com/in/kabelo-dike">LinkedIn</a></li>
       </ul>
     </header>
@@ -304,21 +335,28 @@
     <hr>
 
     <section class="section notes" aria-labelledby="writing-heading">
-      <h2 id="writing-heading">Writing &amp; Notes</h2>
+      <h2 id="writing-heading">Writing &amp; Notes (If I made a mistake, I would like to know. Thanks!)</h2>
       <ul>
         <li>
-          <a class="note" href="blogs/custom-shell-in-c/">
-            <span class="note-head"><span class="note-title">Building a Custom Unix Shell in C</span></span>
-            <span class="note-desc">Walking through process forking, <code>execvp</code>, signals, and standard I/O redirection.</span>
-            <span class="note-meta">Systems, C</span>
+          <a class="note" href="blogs/ai-stack-mental-model/index.html">
+            <span class="note-head">
+              <span class="note-title">AI Stack Mental Model</span>
+              <span class="draft">Drafting</span>
+              <time class="note-date" datetime="2026-11-10">10 Nov 2026</time>
+            </span>
+            <span class="note-desc">A high-level conceptual breakdown of how tokenization, attention, and weights actually fit together.</span>
+            <span class="note-meta">AI, Concepts</span>
           </a>
         </li>
         <li>
-          <div class="note">
-            <span class="note-head"><span class="note-title">Demystifying AI &amp; LLM Mechanics from 10,000 Feet</span><span class="draft">Drafting</span></span>
-            <span class="note-desc">A high-level conceptual breakdown of how tokenization, attention, and weights actually fit together.</span>
-            <span class="note-meta">AI, Concepts</span>
-          </div>
+          <a class="note" href="blogs/custom-shell-in-c/index.html">
+            <span class="note-head">
+              <span class="note-title">Building a Custom Unix Shell in C</span>
+              <time class="note-date" datetime="2025-06-21">21 Jun 2025</time>
+            </span>
+            <span class="note-desc">Walking through process forking, <code>execvp</code>, signals, and standard I/O redirection.</span>
+            <span class="note-meta">Systems, C</span>
+          </a>
         </li>
       </ul>
     </section>
@@ -326,7 +364,6 @@
     <hr>
 
     <footer class="colophon">
-
     </footer>
   </main>
 

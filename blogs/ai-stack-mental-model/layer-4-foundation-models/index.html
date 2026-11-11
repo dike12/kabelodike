@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en"><head><script type="application/json" data-od-external-dependencies>["https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"]</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Foundation Models Layer — AI Stack — Kabelo Dike</title>
+  <meta name="description" content="Layer L4 of the AI stack: frozen weights, tokenization, next-token prediction, the training pipeline, inference trade-offs, and adaptation.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --limestone: #edeae4;
+      --ink: #1b1e23;
+      --inset: #e2ded6;
+      --muted: #585f67;
+      --rule: #c6c0b4;
+      --blue: #2c5578;
+
+      --font-display: "Cinzel", serif;
+      --font-body: "IBM Plex Sans", sans-serif;
+      --font-mono: "IBM Plex Mono", monospace;
+
+      --radius: 6px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 16px;
+      --space-4: 24px;
+      --space-5: 40px;
+
+      --measure: 38rem;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--limestone);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 1.0625rem;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: var(--space-5) var(--space-4) var(--space-5);
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      transition: text-decoration-color 150ms ease;
+    }
+
+    a:hover {
+      text-decoration-color: var(--ink);
+    }
+
+    a:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    .back,
+    .masthead,
+    .article,
+    .page-foot {
+      width: 100%;
+      max-width: var(--measure);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .back {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      min-height: 44px;
+      margin-bottom: var(--space-3);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--muted);
+    }
+
+    .back:hover {
+      color: var(--ink);
+      text-decoration: underline;
+    }
+
+    .back span {
+      color: var(--ink);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: clamp(1.875rem, 5.5vw, 3rem);
+      line-height: 1.12;
+      letter-spacing: 0.015em;
+      text-wrap: balance;
+    }
+
+    .dateline {
+      margin: var(--space-2) 0 0;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .article {
+      padding-top: var(--space-4);
+    }
+
+    .article p.lede {
+      margin: 0 0 var(--space-4);
+      font-size: 1.0625rem;
+      line-height: 1.7;
+      text-wrap: pretty;
+    }
+
+    .article h2 {
+      margin: var(--space-5) 0 var(--space-3);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--rule);
+      font-size: 1.375rem;
+      font-weight: 600;
+      line-height: 1.3;
+      text-wrap: balance;
+      scroll-margin-top: var(--space-4);
+    }
+
+    .article h3 {
+      margin: var(--space-5) 0 var(--space-3);
+      font-size: 1.0625rem;
+      font-weight: 600;
+      line-height: 1.4;
+      scroll-margin-top: var(--space-4);
+    }
+
+    .article h4 {
+      margin: var(--space-4) 0 var(--space-2);
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.4;
+      scroll-margin-top: var(--space-4);
+    }
+
+    .article p {
+      margin: 0 0 var(--space-3);
+      text-wrap: pretty;
+    }
+
+    .article > section > :last-child,
+    .article section section > :last-child {
+      margin-bottom: 0;
+    }
+
+    .article ul,
+    .article ol {
+      margin: 0 0 var(--space-3);
+      padding-left: var(--space-4);
+    }
+
+    .article li {
+      margin-bottom: var(--space-2);
+      padding-left: var(--space-1);
+    }
+
+    .article li:last-child {
+      margin-bottom: 0;
+    }
+
+    .article li > ul {
+      margin-top: var(--space-2);
+      margin-bottom: 0;
+    }
+
+    .article li::marker {
+      color: var(--muted);
+    }
+
+    .article strong {
+      font-weight: 600;
+    }
+
+    .article em {
+      font-style: italic;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.875em;
+      background-color: var(--inset);
+      padding: 0.1em 0.32em;
+      border-radius: 2px;
+      overflow-wrap: anywhere;
+    }
+
+    .callout {
+      margin: var(--space-4) 0;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      background-color: var(--inset);
+    }
+
+    .callout-title {
+      margin: 0 0 var(--space-3);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid var(--rule);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .callout dl {
+      margin: 0;
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .callout dt {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-2);
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .callout dd {
+      margin: var(--space-1) 0 0;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    .tag {
+      flex: none;
+      padding: 1px 6px;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .formula {
+      display: inline-block;
+      max-width: 100%;
+      overflow-x: auto;
+      padding: 0.1em 0.32em;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      font-size: 0.875em;
+      line-height: 1.5;
+      white-space: nowrap;
+      vertical-align: baseline;
+    }
+
+    .boundary {
+      margin: var(--space-4) 0 0;
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--rule);
+    }
+
+    .boundary-label {
+      display: block;
+      margin-bottom: var(--space-1);
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .steps {
+      margin: var(--space-3) 0 var(--space-4);
+      padding: 0;
+      list-style: none;
+      counter-reset: step;
+      border-top: 1px solid var(--rule);
+    }
+
+    .steps li {
+      counter-increment: step;
+      margin: 0;
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .steps li::before {
+      content: counter(step, decimal-leading-zero);
+      display: block;
+      margin-bottom: var(--space-1);
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .page-foot {
+      margin-top: var(--space-5);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--rule);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+    }
+
+    .page-foot a {
+      display: inline-block;
+      padding: 8px 0;
+      text-decoration: none;
+      color: var(--muted);
+    }
+
+    .page-foot a:hover {
+      color: var(--ink);
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        padding: var(--space-4) var(--space-3) var(--space-5);
+      }
+
+      body {
+        font-size: 1rem;
+      }
+
+      .article h2 {
+        font-size: 1.25rem;
+      }
+
+      .callout {
+        padding: var(--space-3);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media print {
+      @page {
+        margin: 18mm 16mm;
+      }
+
+      main {
+        max-width: none;
+        padding: 0;
+      }
+
+      .back,
+      .page-foot {
+        display: none;
+      }
+
+      .article h2,
+      .article h3,
+      .article h4 {
+        break-after: avoid;
+      }
+
+      .steps li,
+      .callout,
+      .article li {
+        break-inside: avoid;
+      }
+
+      code {
+        background-color: transparent;
+        border: 1px solid var(--rule);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="../index.html">Kabelo Dike <span>/</span> AI Stack Mental Model</a>
+
+    <header class="masthead">
+      <h1>The Foundation Models Layer</h1>
+      <p class="dateline"><time datetime="2026-11-10">10 Nov 2026</time> · Layer L4 of 5</p>
+    </header>
+
+    <article class="article">
+
+      <p class="lede">
+        Now that we have explored how the Application Layer wraps around and orchestrates execution,
+        let’s step down to <strong>Layer 4: Foundation Models</strong>.
+      </p>
+
+      <p>
+        If the Application Layer is the body, the Foundation Model is the raw computational engine. A
+        foundation model is not a database containing stored records, nor is it an active software daemon
+        with live threads running in the background. Mechanically, it is a static, frozen artifact
+        composed of billions of mathematical weights. When invoked by the orchestrator, it performs
+        massive matrix operations to solve a single statistical problem: predicting the most probable
+        next sequence of tokens given an input context.
+      </p>
+
+      <section id="the-artifact" aria-labelledby="the-artifact-title">
+        <h2 id="the-artifact-title">What a model actually is (the artifact)</h2>
+
+        <ul>
+          <li>
+            <strong>Frozen numerical weights:</strong> When an engineering team “downloads” or loads an
+            open model, they are not loading an executable binary. They are reading a multi-gigabyte data
+            file of frozen numerical matrices (parameters). During inference, these numbers never change;
+            the model never learns, writes to disk, or updates itself from your conversation.
+          </li>
+          <li>
+            <strong>Tokenization:</strong> Neural networks do not understand characters, words, or code
+            directly. An input string is first sliced by a tokenizer into discrete integer IDs called
+            tokens (typically chunks of roughly 3 to 4 characters). The model computes strictly over
+            these numerical vectors.
+          </li>
+          <li>
+            <strong>Next-token prediction:</strong> At the core of transformer architectures is a
+            next-token predictor. Given an input sequence of tokens, the network passes the vectors
+            through dozens of attention layers to compute a probability distribution across its fixed
+            vocabulary, then samples the next token. Repeating this loop token by token produces the
+            output sequence.
+          </li>
+        </ul>
+
+        <div class="callout">
+          <p class="callout-title">Systems primer: neurons, weights, and networks</p>
+          <dl>
+            <div>
+              <dt>A neuron is just a linear equation</dt>
+              <dd>
+                It is not a biological brain cell. It is a mathematical node that calculates a dot
+                product: <span class="formula">Σ (inputᵢ × weightᵢ) + bias</span>
+                passed through a non-linear activation function (like ReLU or GELU). It takes numbers
+                in, scales them, and emits a single number out.
+              </dd>
+            </div>
+            <div>
+              <dt>Weights are tuning knobs</dt>
+              <dd>
+                A weight is simply a floating-point number (e.g., <code>0.4281</code> or
+                <code>-1.1904</code>). It determines how much importance to give to a specific input
+                signal. Training a model is nothing more than running calculus (backpropagation) across
+                billions of examples to calculate the optimal values for these numbers. Once training
+                stops, the weights are frozen.
+              </dd>
+            </div>
+            <div>
+              <dt>A neural network is layered matrix multiplication</dt>
+              <dd>
+                Billions of these numerical nodes are organized into stacked layers. Output values from
+                Layer 1 become the inputs to Layer 2, and so forth. Passing data forward through these
+                layers is just massive parallel matrix multiplication that transforms a vector of input
+                tokens into a probability distribution over the next token.
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section id="training-pipeline" aria-labelledby="training-pipeline-title">
+        <h2 id="training-pipeline-title">The training pipeline: from raw text to assistant</h2>
+
+        <p>
+          A model does not come out of the factory ready to answer questions or follow technical
+          instructions. It goes through three distinct stages:
+        </p>
+
+        <ul>
+          <li>
+            <strong>Pre-training (the base model):</strong> The model processes trillions of tokens of
+            text scraped from the internet, books, and code repositories to learn grammar, syntax, facts,
+            and reasoning patterns. However, a raw base model is not an assistant; if you prompt it with
+            <em>“What is the capital of France?”</em>, it might just complete the sentence with <em>“and
+            what is the capital of Germany?”</em> because it is simply completing text documents.
+          </li>
+          <li>
+            <strong>Supervised fine-tuning (SFT / post-training):</strong> Engineers train the base model
+            on curated question-and-answer datasets structured in a conversational format
+            (<code>User:</code> / <code>Assistant:</code>). This teaches the model to adopt an
+            instructional persona and recognize when it is supposed to respond rather than continue
+            generating a prompt.
+          </li>
+          <li>
+            <strong>Preference alignment (RLHF / DPO):</strong> Reinforcement Learning from Human Feedback
+            and Direct Preference Optimization score multiple model responses to tune its outputs toward
+            human intent. This step instills safety boundaries, eliminates toxic patterns, and refines the
+            tone to be helpful and concise.
+          </li>
+        </ul>
+      </section>
+
+      <section id="inference-architecture" aria-labelledby="inference-architecture-title">
+        <h2 id="inference-architecture-title">Inference architecture and modern trade-offs</h2>
+
+        <p>
+          When selecting models for production workloads, there is a direct trade-off between latency,
+          memory footprint, and compute cost:
+        </p>
+
+        <ul>
+          <li>
+            <strong>Dense models vs. Mixture of Experts (MoE):</strong>
+            <ul>
+              <li>
+                In a <em>Dense model</em>, every single parameter in the network is activated for every
+                generated token, requiring heavy compute and high memory bandwidth.
+              </li>
+              <li>
+                In a <em>Mixture of Experts (MoE)</em> architecture, the model contains specialized
+                sub-networks (experts). A lightweight routing mechanism directs each token to only a
+                subset of these experts, drastically reducing operational compute costs while preserving
+                broad reasoning capacity.
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>Context windows and attention:</strong> The context window is the finite token buffer
+            the model can evaluate at once. Standard transformer attention scales quadratically
+            (<span class="formula">O(N²)</span>) in compute with input length, meaning larger context
+            windows demand significantly more memory and compute during the initial processing phase.
+          </li>
+          <li>
+            <strong>Reasoning models (inference-time compute):</strong> Traditional models generate output
+            tokens immediately. Newer reasoning models generate hidden “thinking” tokens before emitting
+            the final answer. This trades higher latency and token cost for deeper logical analysis on
+            complex math, architecture, and coding tasks.
+          </li>
+        </ul>
+      </section>
+
+      <section id="adapting-models" aria-labelledby="adapting-models-title">
+        <h2 id="adapting-models-title">Adapting models: fine-tuning vs. in-context retrieval</h2>
+
+        <p>
+          A common architectural question is whether to train a custom model or use an off-the-shelf
+          foundation model:
+        </p>
+
+        <ul>
+          <li>
+            <strong>In-context learning (RAG &amp; tool use):</strong> Injecting private data directly
+            into the prompt at runtime. This is ideal for fast-moving business data, costs far less to
+            maintain, provides source citations, and requires zero model retraining.
+          </li>
+          <li>
+            <strong>Domain fine-tuning:</strong> Updating the actual weights of an existing model using
+            specialized datasets. This does not reliably teach a model new facts, but it is effective for
+            altering style, teaching rare code syntax, or training small, cheap models to output rigid
+            structured formats with high consistency.
+          </li>
+        </ul>
+
+        <p class="boundary">
+          <span class="boundary-label">The architectural boundary</span>
+          The foundation model knows nothing about your internal production infrastructure, live ticket
+          queues, or databases. It provides the generalized reasoning capacity; the Application Layer
+          above it is responsible for retrieving and injecting domain context at runtime.
+        </p>
+      </section>
+    </article>
+
+    <footer class="page-foot">
+      <a href="../index.html">Back to the AI stack</a>
+    </footer>
+  </main>
+
+</body></html>

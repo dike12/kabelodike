@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en"><head><script type="application/json" data-od-external-dependencies>["https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"]</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Stack Mental Model — Kabelo Dike</title>
+  <meta name="description" content="The AI stack shows the layers that work together to power AI applications, from energy and facilities at the base to applications at the top.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --limestone: #edeae4;
+      --ink: #1b1e23;
+      --inset: #e2ded6;
+      --muted: #585f67;
+      --rule: #c6c0b4;
+      --blue: #2c5578;
+
+      --font-display: "Cinzel", serif;
+      --font-body: "IBM Plex Sans", sans-serif;
+      --font-mono: "IBM Plex Mono", monospace;
+
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 16px;
+      --space-4: 24px;
+      --space-5: 40px;
+
+      --measure: 36rem;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--limestone);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 1.0625rem;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: var(--space-5) var(--space-4) var(--space-5);
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      transition: text-decoration-color 150ms ease;
+    }
+
+    a:hover {
+      text-decoration-color: var(--ink);
+    }
+
+    a:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    .back {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      width: 100%;
+      max-width: var(--measure);
+      min-height: 44px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: var(--space-3);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--muted);
+    }
+
+    .back:hover {
+      color: var(--ink);
+      text-decoration: underline;
+    }
+
+    .back span {
+      color: var(--ink);
+    }
+
+    .masthead {
+      width: 100%;
+      max-width: var(--measure);
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: clamp(1.875rem, 5.5vw, 3rem);
+      line-height: 1.12;
+      letter-spacing: 0.015em;
+      text-wrap: balance;
+    }
+
+    .dateline {
+      margin: var(--space-2) 0 0;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .lede {
+      margin: var(--space-4) 0 0;
+      max-width: 60ch;
+      font-size: 1.1875rem;
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+
+    .figure {
+      margin: var(--space-5) 0 0;
+      padding: 0;
+    }
+
+    .diagram-container {
+      width: 100%;
+      overflow-x: auto;
+      padding: var(--space-3) 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      overscroll-behavior-x: contain;
+    }
+
+    .diagram-container svg {
+      display: block;
+      width: 100%;
+      min-width: 960px;
+      height: auto;
+    }
+
+    .diagram-container svg a.layer {
+      cursor: pointer;
+    }
+
+    .diagram-container svg a.layer rect {
+      transition: stroke 150ms ease, stroke-width 150ms ease;
+    }
+
+    .diagram-container svg a.layer:hover rect {
+      stroke: var(--blue);
+      stroke-width: 2.5;
+    }
+
+    .diagram-container svg a.layer:focus {
+      outline: none;
+    }
+
+    .diagram-container svg a.layer:focus rect,
+    .diagram-container svg a.layer:focus-visible rect {
+      stroke: var(--blue);
+      stroke-width: 3;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        padding: var(--space-4) var(--space-3) var(--space-5);
+      }
+
+      body {
+        font-size: 1rem;
+      }
+
+      .lede {
+        font-size: 1.0625rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media print {
+      .diagram-container {
+        overflow-x: visible;
+      }
+
+      .diagram-container svg {
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="../../index.html">Kabelo Dike <span>/</span> Writing &amp; Notes</a>
+
+    <header class="masthead">
+      <h1>AI Stack Mental Model</h1>
+      <p class="dateline"><time datetime="2026-11-10">10 Nov 2026</time> · Drafting</p>
+      <p class="lede">
+        The AI stack shows the layers that work together to power AI applications, from energy and
+        facilities at the base to applications at the top. Click a layer to explore its role and how
+        it connects to the rest of the stack.
+      </p>
+    </header>
+
+    <figure class="figure">
+      <div class="diagram-container">
+        <svg viewBox="0 0 960 584" xmlns="http://www.w3.org/2000/svg" role="group" aria-labelledby="ai-stack-title ai-stack-desc">
+          <title id="ai-stack-title">The AI stack</title>
+          <desc id="ai-stack-desc">Five AI stack layers, from energy and facilities through chips, serving infrastructure, and foundation models to applications, with representative examples in each layer. Pages are available for L3, L4, and L5.</desc>
+
+          <text x="104" y="84" fill="#4A5058" font-size="8" font-family="'IBM Plex Mono', monospace" font-weight="500" letter-spacing="0.08em" text-anchor="middle">ABSTRACTION ↑</text>
+          <line x1="104" y1="116" x2="104" y2="508" stroke="#4A5058" stroke-width="1"></line>
+          <polygon points="100,116 108,116 104,108" fill="#4A5058"></polygon>
+
+          <a class="layer" href="layer-5-application/index.html" aria-label="Layer L5, Application — open layer page">
+            <rect x="160" y="112" width="760" height="80" fill="#E2DED6" stroke="#1B1E23" stroke-width="1"></rect>
+            <text x="188" y="158" fill="#4A5058" font-size="8" font-family="'IBM Plex Mono', monospace" letter-spacing="0.08em">L5</text>
+            <text x="272" y="141" fill="#1B1E23" font-size="14" font-weight="600" font-family="'IBM Plex Sans', sans-serif">Application</text>
+            <text x="272" y="163" fill="#4A5058" font-size="10" font-family="'IBM Plex Mono', monospace">Agent harness · planning loops · tool use</text>
+            <text x="272" y="177" fill="#4A5058" font-size="10" font-family="'IBM Plex Mono', monospace">Prompt templates · UI</text>
+          </a>
+
+          <a class="layer" href="layer-4-foundation-models/index.html" aria-label="Layer L4, Foundation models — open layer page">
+            <rect x="160" y="192" width="760" height="80" fill="rgba(168,66,15,0.10)" stroke="#A8420F" stroke-width="1.2"></rect>
+            <text x="188" y="238" fill="#A8420F" font-size="8" font-family="'IBM Plex Mono', monospace" font-weight="500" letter-spacing="0.08em">L4</text>
+            <text x="272" y="221" fill="#1B1E23" font-size="14" font-weight="600" font-family="'IBM Plex Sans', sans-serif">Foundation models</text>
+            <text x="272" y="243" fill="#4A5058" font-size="10" font-family="'IBM Plex Mono', monospace">Pre-trained neural weights · next-token prediction</text>
+            <text x="272" y="257" fill="#4A5058" font-size="10" font-family="'IBM Plex Mono', monospace">Fine-tuning · RLHF (one post-training method)</text>
+          </a>
+
+          <a class="layer" href="layer-3-infrastructure-serving/index.html" aria-label="Layer L3, Infrastructure and serving — open layer page">
+            <rect x="160" y="272" width="760" height="80" fill="#EDEAE4" stroke="#C6C0B4" stroke-width="1"></rect>
+            <text x="188" y="318" fill="#4A5058" font-size="8" font-family="'IBM Plex Mono', monospace" letter-spacing="0.08em">L3</text>
+            <text x="272" y="301" fill="#1B1E23" font-size="14" font-weight="600" font-family="'IBM Plex Sans', sans-serif">Infrastructure · serving</text>
+            <text x="272" y="323" fill="#4A5058" font-size="10" font-family="'IBM Plex Mono', monospace">Inference engineering · API keys · rate limits</text>
+            <text x="272" y="337" fill="#4A5058" font-size="10" font-family="'IBM Plex Mono', monospace">KV caching · request/worker routing</text>
+          </a>
+
+          <g aria-label="Layer L2, Chips — page not yet added">
+            <rect x="160" y="352" width="760" height="80" fill="#E2DED6" stroke="#C6C0B4" stroke-width="1"></rect>
+            <text x="188" y="398" fill="#4A5058" font-size="8" font-family="'IBM Plex Mono', monospace" letter-spacing="0.08em">L2</text>
+            <text x="272" y="381" fill="#1B1E23" font-size="14" font-weight="600" font-family="'IBM Plex Sans', sans-serif">Chips</text>
+            <text x="272" y="403" fill="#4A5058" font-size="10" font-family="'IBM Plex Mono', monospace">GPUs · TPUs · High-Bandwidth Memory (HBM)</text>
+            <text x="272" y="417" fill="#4A5058" font-size="10" font-family="'IBM Plex Mono', monospace">Tensor / matrix-multiplication units</text>
+          </g>
+
+          <g aria-label="Layer L1, Energy and facilities — page not yet added">
+            <rect x="160" y="432" width="760" height="80" fill="#EDEAE4" stroke="#1B1E23" stroke-width="1"></rect>
+            <text x="188" y="478" fill="#4A5058" font-size="8" font-family="'IBM Plex Mono', monospace" letter-spacing="0.08em">L1</text>
+            <text x="272" y="461" fill="#1B1E23" font-size="14" font-weight="600" font-family="'IBM Plex Sans', sans-serif">Energy + facilities</text>
+            <text x="272" y="483" fill="#4A5058" font-size="10" font-family="'IBM Plex Mono', monospace">Grid power · gigawatt-scale capacity · substations</text>
+            <text x="272" y="497" fill="#4A5058" font-size="10" font-family="'IBM Plex Mono', monospace">Data-centre facilities · liquid cooling</text>
+          </g>
+
+          <text x="160" y="548" fill="#585F67" font-size="8" font-family="'IBM Plex Mono', monospace" letter-spacing="0.12em">FIVE LAYERS · ENERGY → APPLICATION</text>
+        </svg>
+      </div>
+    </figure>
+  </main>
+
+
+</body></html>
